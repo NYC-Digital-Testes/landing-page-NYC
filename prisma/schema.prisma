@@ -1,0 +1,32 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Cache do token de autenticação da API Crefaz (válido por 12h).
+// Persistido em tabela, não em memória, porque funções serverless
+// da Vercel são stateless entre invocações. Usado só em CREFAZ_MODE=real.
+model TokenCrefaz {
+  id           Int      @id @default(autoincrement())
+  token        String
+  expiraEm     DateTime
+  atualizadoEm DateTime @updatedAt
+}
+
+// Acompanha uma proposta de pré-análise da Crefaz, que é assíncrona:
+// criada com status "pendente" e atualizada para "aprovado"/"reprovado"
+// quando o webhook em /api/webhooks/crefaz é chamado. Usado só em
+// CREFAZ_MODE=real (no mock, a resposta já sai resolvida).
+model PropostaCrefaz {
+  id               Int      @id @default(autoincrement())
+  crefazProcessoId Int?
+  crefazPropostaId Int?     @unique
+  status           String   @default("pendente")
+  motivoReprovacao String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
