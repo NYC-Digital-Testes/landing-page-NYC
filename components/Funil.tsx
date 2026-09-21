@@ -13,7 +13,7 @@ type Etapa =
   | "reprovado";
 
 // TODO: número real do atendimento de conversão (WhatsApp).
-const WHATSAPP_NUMERO = "5511972779859";
+const WHATSAPP_NUMERO = "5511910644163";
 
 // A pré-análise na Crefaz é assíncrona (resultado chega via webhook), então
 // fazemos polling do status. 40x a cada 2s = até ~80s de espera.
@@ -200,12 +200,15 @@ export default function Funil() {
   }
 
   function clickWhatsapp() {
-    // Evento de conversão consumido pelo GTM/Google Ads (tags reais na Fase 3).
+    // Evento de conversão consumido pelo GTM/Google Ads: trigger "Evento personalizado"
+    // com o nome conversao_whatsapp_cta.
+    const w = window as unknown as { dataLayer?: object[] };
+    (w.dataLayer ??= []).push({ event: "conversao_whatsapp_cta" });
     window.dispatchEvent(new CustomEvent("conversao_whatsapp_cta"));
   }
 
   const mensagemWhatsapp = encodeURIComponent(
-    `Olá! Sou ${nome || "cliente"} e fui pré-aprovado(a) no simulador NYC Energia (CPF: ${form.cpf}). Quero saber mais detalhesd.`
+    `Olá! Sou ${nome || "cliente"} e fui pré-aprovado(a) no simulador NYC Energia com CPF: ${form.cpf}. Quero saber mais detalhes.`
   );
   const whatsappUrl = `https://wa.me/${WHATSAPP_NUMERO}?text=${mensagemWhatsapp}`;
 
