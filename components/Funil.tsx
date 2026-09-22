@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import type { Ocupacao } from "@/lib/crefaz/types";
+import { pushDataLayerEvent } from "@/lib/gtm";
 import {
   Select,
   SelectContent,
@@ -163,6 +164,7 @@ export default function Funil() {
       const data = await res.json();
 
       if (data.status === "aprovado") {
+        pushDataLayerEvent("simulacao_aprovada");
         setEtapa("aprovado");
         return;
       }
@@ -203,6 +205,8 @@ export default function Funil() {
         return;
       }
 
+      pushDataLayerEvent("lead_formulario_enviado");
+
       await aguardarResultado(data.proposalId);
     } catch {
       setErro("Erro de conexão. Tente novamente.");
@@ -221,8 +225,7 @@ export default function Funil() {
   function clickWhatsapp() {
     // Evento de conversão consumido pelo GTM/Google Ads: trigger "Evento personalizado"
     // com o nome conversao_whatsapp_cta.
-    const w = window as unknown as { dataLayer?: object[] };
-    (w.dataLayer ??= []).push({ event: "conversao_whatsapp_cta" });
+    pushDataLayerEvent("conversao_whatsapp_cta");
     window.dispatchEvent(new CustomEvent("conversao_whatsapp_cta"));
   }
 

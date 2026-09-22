@@ -1,3 +1,7 @@
+"use client";
+
+import { pushDataLayerEvent } from "@/lib/gtm";
+
 const pills = [
   "De R$ 400 até R$ 4.000",
   "Até 24 parcelas",
@@ -7,6 +11,10 @@ const pills = [
 ];
 
 export default function Hero() {
+  function clickSimularAgora() {
+    pushDataLayerEvent("cta_click", { cta_local: "hero" });
+  }
+
   return (
     <section
       style={{
@@ -47,6 +55,7 @@ export default function Hero() {
           </p>
           <a
             href="#simulador"
+            onClick={clickSimularAgora}
             style={{
               display: "inline-block",
               background: "oklch(0.80 0.16 90)",

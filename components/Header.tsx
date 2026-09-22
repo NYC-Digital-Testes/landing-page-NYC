@@ -1,4 +1,12 @@
+"use client";
+
+import { pushDataLayerEvent } from "@/lib/gtm";
+
 export default function Header() {
+  function clickSimularAgora() {
+    pushDataLayerEvent("cta_click", { cta_local: "header" });
+  }
+
   return (
     <header
       style={{
@@ -21,6 +29,7 @@ export default function Header() {
       />
       <a
         href="#simulador"
+        onClick={clickSimularAgora}
         style={{
           background: "oklch(0.80 0.16 90)",
           color: "oklch(0.25 0.05 90)",
