@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import type { Ocupacao } from "@/lib/crefaz/types";
 import {
   Select,
@@ -101,6 +101,18 @@ export default function Funil() {
   const [erro, setErro] = useState("");
   const [nome, setNome] = useState("");
   const [form, setForm] = useState(FORM_INICIAL);
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  // No mobile, ao enviar o form o teclado fecha e o card de loading/resultado
+  // fica bem mais baixo que o form preenchido — sem isso, a página "sobra"
+  // scrollada mais pra baixo do que o card, e o usuário precisa subir pra ver
+  // o loading/resultado. Rola o card pro topo visível sempre que entra numa
+  // dessas etapas.
+  useEffect(() => {
+    if (etapa === "processando" || etapa === "aprovado" || etapa === "reprovado" || etapa === "encerrado") {
+      cardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [etapa]);
 
   useEffect(() => {
     if (etapa === "dados" && ocupacoes.length === 0) {
@@ -279,6 +291,7 @@ export default function Funil() {
       </div>
 
       <div
+        ref={cardRef}
         style={{
           background: "white",
           borderRadius: 16,
@@ -290,6 +303,7 @@ export default function Funil() {
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
+          scrollMarginTop: 88,
         }}
       >
         {etapa === "titular" && (
