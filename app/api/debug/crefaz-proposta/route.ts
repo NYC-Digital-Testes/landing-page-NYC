@@ -4,18 +4,20 @@ import { debugProdutosOfertadosRaw } from "@/lib/crefaz/real";
 // Endpoint de debug TEMPORÁRIO — investiga por que uma pré-análise foi
 // reprovada sem mensagem no webhook, consultando a Crefaz direto pelo
 // crefazPropostaId (não exposto pela API pública do app). Protegido
-// comparando ?token= com a própria CREFAZ_API_KEY já configurada em
-// produção (evita expor isso publicamente sem precisar de uma env var
-// nova, já que não temos acesso ao dashboard da Vercel pra criar uma).
+// comparando o header x-debug-token com a própria CREFAZ_API_KEY já
+// configurada em produção (evita expor isso publicamente sem precisar de
+// uma env var nova, já que não temos acesso ao dashboard da Vercel pra
+// criar uma). Token vai em HEADER, não em query string, pra não ficar
+// visível em histórico de navegador/logs de acesso.
 // Remover esse arquivo depois de diagnosticar.
 export async function GET(req: Request) {
-  const url = new URL(req.url);
-  const token = url.searchParams.get("token");
+  const token = req.headers.get("x-debug-token");
 
   if (!token || token !== process.env.CREFAZ_API_KEY) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
+  const url = new URL(req.url);
   const propostaId = Number(url.searchParams.get("propostaId"));
   if (!propostaId) {
     return NextResponse.json({ error: "propostaId inválido" }, { status: 400 });
