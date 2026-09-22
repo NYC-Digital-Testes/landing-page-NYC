@@ -86,12 +86,35 @@ async function chamarApi<T>(path: string, init?: RequestInit): Promise<T> {
   return json.data as T;
 }
 
-// Debug temporário: devolve a resposta CRUA da Crefaz pra
-// /propostas/{id}/produtos-ofertados (produtos, produtosNegados, bloqueio,
-// dados da proposta) — usado só por app/api/debug/crefaz-proposta pra
-// investigar reprovações sem mensagem no webhook. Remover depois de usar.
-export async function debugProdutosOfertadosRaw(propostaId: number): Promise<unknown> {
-  return chamarApi<unknown>(`/propostas/${propostaId}/produtos-ofertados`);
+// O webhook da Crefaz (evento.mensagens) quase sempre vem vazio numa
+// reprovação — o motivo real só existe em produtosNegados[].motivoNegativa,
+// que só é exposto por este outro endpoint. Chamado pelo webhook logo após
+// receber aprovado:false, pra guardar o motivo de verdade em vez de null.
+interface ProdutoNegado {
+  nome?: string;
+  produto?: { nome?: string };
+  motivoNegativa?: string[] | string;
+  motivo?: string[] | string;
+}
+
+function extrairMotivos(produtosNegados: unknown): string | null {
+  if (!Array.isArray(produtosNegados) || produtosNegados.length === 0) return null;
+
+  const partes = (produtosNegados as ProdutoNegado[]).map((p) => {
+    const nomeProduto = p.nome ?? p.produto?.nome ?? "produto";
+    const motivoRaw = p.motivoNegativa ?? p.motivo;
+    const motivo = Array.isArray(motivoRaw) ? motivoRaw.join("; ") : motivoRaw;
+    return motivo ? `${nomeProduto}: ${motivo}` : `${nomeProduto}: ${JSON.stringify(p)}`;
+  });
+
+  return partes.join(" | ");
+}
+
+export async function buscarMotivoReprovacao(propostaId: number): Promise<string | null> {
+  const data = await chamarApi<{ produtosNegados?: unknown }>(
+    `/propostas/${propostaId}/produtos-ofertados`
+  );
+  return extrairMotivos(data.produtosNegados);
 }
 
 export const realClient: CrefazClient = {

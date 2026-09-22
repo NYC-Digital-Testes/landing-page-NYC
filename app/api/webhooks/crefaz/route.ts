@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
+import { buscarMotivoReprovacao } from "@/lib/crefaz/real";
 
 const prisma = new PrismaClient();
 
@@ -31,7 +32,21 @@ export async function POST(req: Request) {
   }
 
   const status = proposta.aprovado ? "aprovado" : "reprovado";
-  const motivoReprovacao = proposta.aprovado ? null : (body?.evento?.mensagens?.join(" ") ?? null);
+
+  // O webhook quase nunca traz o motivo em evento.mensagens. Quando reprovado,
+  // busca o motivo real (produtosNegados) na API antes de salvar; se a busca
+  // falhar, cai pro que veio no próprio webhook (ou null) pra não travar o fluxo.
+  let motivoReprovacao: string | null = null;
+  if (!proposta.aprovado) {
+    try {
+      motivoReprovacao = await buscarMotivoReprovacao(proposta.id);
+    } catch (e) {
+      console.error("[webhook crefaz] falha ao buscar motivo real da reprovação:", e);
+    }
+    if (!motivoReprovacao) {
+      motivoReprovacao = body?.evento?.mensagens?.join(" ") ?? null;
+    }
+  }
 
   console.log("[webhook crefaz] atualizando proposta:", {
     crefazPropostaId: proposta.id,
