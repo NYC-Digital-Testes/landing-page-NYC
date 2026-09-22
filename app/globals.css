@@ -81,3 +81,28 @@ html {
     gap: 28px 20px;
   }
 }
+
+@keyframes emoji-pop {
+  0% { transform: scale(0) rotate(-15deg); opacity: 0; }
+  60% { transform: scale(1.2) rotate(6deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+@keyframes emoji-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.emoji-feedback {
+  display: inline-block;
+  font-size: 40px;
+  line-height: 1;
+  animation: emoji-pop 0.5s ease-out, emoji-bounce 1.8s ease-in-out 0.5s infinite;
+}
+
+.emoji-feedback--inline {
+  font-size: 20px;
+  vertical-align: -3px;
+  margin-right: 6px;
+  animation: emoji-pop 0.4s ease-out, emoji-bounce 1.8s ease-in-out 0.4s infinite;
+}

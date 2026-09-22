@@ -523,6 +523,7 @@ export default function Funil() {
 
             {erro && (
               <p style={{ color: "oklch(0.5 0.15 30)", fontSize: 14, margin: "0 0 16px", whiteSpace: "pre-line" }}>
+                <span className="emoji-feedback--inline" aria-hidden="true">😔</span>
                 {erro}
               </p>
             )}
@@ -565,6 +566,9 @@ export default function Funil() {
 
         {etapa === "aprovado" && (
           <div data-etapa="etapa-3-aprovado" style={{ textAlign: "center", animation: "step-in 0.4s ease-out" }}>
+            <div className="emoji-feedback" aria-hidden="true" style={{ marginBottom: 8 }}>
+              🎉😄
+            </div>
             <div
               style={{
                 width: 60,
@@ -620,6 +624,9 @@ export default function Funil() {
 
         {etapa === "reprovado" && (
           <div data-etapa="etapa-3-reprovado" style={{ textAlign: "center", animation: "step-in 0.4s ease-out" }}>
+            <div className="emoji-feedback" aria-hidden="true" style={{ marginBottom: 8 }}>
+              😔
+            </div>
             <div
               style={{
                 width: 56,
