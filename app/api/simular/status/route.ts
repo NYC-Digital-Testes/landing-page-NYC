@@ -21,7 +21,13 @@ export async function GET(req: Request) {
   if (proposta.status === "aprovado" && proposta.crefazPropostaId) {
     try {
       const produtos = await getCrefazClient().listarProdutos(proposta.crefazPropostaId);
-      if (!produtos.some((p) => /energia/i.test(p.nome))) {
+      const temEnergia = produtos.some((p) => /energia/i.test(p.nome));
+      console.log("[status] checagem produto energia:", {
+        propostaId: id,
+        produtos: produtos.map((p) => p.nome),
+        temEnergia,
+      });
+      if (!temEnergia) {
         const motivo = "Não há oferta disponível para conta de energia no momento.";
         await prisma.propostaCrefaz.update({
           where: { id },

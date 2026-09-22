@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { maskCpf } from "@/lib/validations";
 import type {
   ConsultaCidadeInput,
   ConsultaCidadeResult,
@@ -85,6 +86,14 @@ async function chamarApi<T>(path: string, init?: RequestInit): Promise<T> {
   return json.data as T;
 }
 
+// Debug temporário: devolve a resposta CRUA da Crefaz pra
+// /propostas/{id}/produtos-ofertados (produtos, produtosNegados, bloqueio,
+// dados da proposta) — usado só por app/api/debug/crefaz-proposta pra
+// investigar reprovações sem mensagem no webhook. Remover depois de usar.
+export async function debugProdutosOfertadosRaw(propostaId: number): Promise<unknown> {
+  return chamarApi<unknown>(`/propostas/${propostaId}/produtos-ofertados`);
+}
+
 export const realClient: CrefazClient = {
   async listarOcupacoes(): Promise<Ocupacao[]> {
     const data = await chamarApi<{ ocupacao: { id: number; nome: string; ativo: boolean }[] }>(
@@ -130,13 +139,35 @@ export const realClient: CrefazClient = {
       }
     );
 
+    console.log("[crefaz] pré-análise criada:", {
+      cpf: maskCpf(input.cpf),
+      processoId: data.processo.id,
+      propostaId: data.proposta.id,
+    });
+
     return { modo: "assincrono", processoId: data.processo.id, propostaId: data.proposta.id };
   },
 
   async listarProdutos(propostaId: number): Promise<ProdutoOfertado[]> {
-    const data = await chamarApi<{ produtos: { id: number; nome: string }[] }>(
-      `/propostas/${propostaId}/produtos-ofertados`
-    );
+    const data = await chamarApi<{
+      produtos: { id: number; nome: string }[];
+      produtosNegados?: unknown;
+      bloqueio?: unknown;
+      proposta?: { cpf?: string; nome?: string; valorRendaPresumida?: number };
+    }>(`/propostas/${propostaId}/produtos-ofertados`);
+
+    // produtosNegados/bloqueio vinham na resposta e eram descartados aqui —
+    // são o melhor sinal para entender uma reprovação, então loga tudo
+    // (cpf mascarado, seguindo o padrão do projeto).
+    console.log("[crefaz] produtos-ofertados:", {
+      propostaId,
+      produtos: data.produtos.map((p) => p.nome),
+      produtosNegados: data.produtosNegados ?? null,
+      bloqueio: data.bloqueio ?? null,
+      cpf: data.proposta?.cpf ? maskCpf(data.proposta.cpf) : undefined,
+      valorRendaPresumida: data.proposta?.valorRendaPresumida,
+    });
+
     return data.produtos.map((p) => ({ id: p.id, nome: p.nome, detalhes: p }));
   },
 };

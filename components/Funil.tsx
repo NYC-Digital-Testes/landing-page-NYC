@@ -2,6 +2,13 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 import type { Ocupacao } from "@/lib/crefaz/types";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type Etapa =
   | "titular"
@@ -494,19 +501,25 @@ export default function Funil() {
             **/}
 
             <label style={labelStyle}>Ocupação</label>
-            <select
+            <Select
               required
               value={form.ocupacaoId}
-              onChange={(e) => atualizarCampo("ocupacaoId", e.target.value)}
-              style={{ ...inputStyle, marginBottom: 24, background: "white" }}
+              onValueChange={(value) => atualizarCampo("ocupacaoId", value)}
             >
-              <option value="">Selecione</option>
-              {ocupacoes.map((o) => (
-                <option key={o.id} value={o.id}>
-                  {o.nome}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger
+                className="w-full mb-6"
+                style={{ height: 48, borderRadius: 9, fontSize: 15 }}
+              >
+                <SelectValue placeholder="Selecione" />
+              </SelectTrigger>
+              <SelectContent>
+                {ocupacoes.map((o) => (
+                  <SelectItem key={o.id} value={String(o.id)}>
+                    {o.nome}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
             {erro && <p style={{ color: "oklch(0.5 0.15 30)", fontSize: 14, margin: "0 0 16px" }}>{erro}</p>}
 
