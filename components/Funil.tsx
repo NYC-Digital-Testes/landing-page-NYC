@@ -148,7 +148,7 @@ export default function Funil() {
       const d = await r.json();
       if (d.erro) return;
       setForm((f) => ({ ...f, cidade: d.localidade, uf: d.uf }));
-    } catch {}
+    } catch { }
   }
 
   function atualizarCampo(campo: keyof typeof form, valor: string) {
@@ -376,14 +376,14 @@ export default function Funil() {
               inputMode="numeric"
               value={form.cpf}
               onChange={(e) => atualizarCampo(
-                  "cpf",
-                  e.target.value
-                    .replace(/\D/g, "")
-                    .slice(0, 11)
-                    .replace(/(\d{3})(\d)/, "$1.$2")
-                    .replace(/(\d{3})(\d)/, "$1.$2")
-                    .replace(/(\d{3})(\d{1,2})$/, "$1-$2"),
-                )
+                "cpf",
+                e.target.value
+                  .replace(/\D/g, "")
+                  .slice(0, 11)
+                  .replace(/(\d{3})(\d)/, "$1.$2")
+                  .replace(/(\d{3})(\d)/, "$1.$2")
+                  .replace(/(\d{3})(\d{1,2})$/, "$1-$2"),
+              )
               }
               maxLength={14}
               style={inputStyle}
@@ -611,7 +611,12 @@ export default function Funil() {
               Parabéns! Sua simulação foi pré-aprovada
             </h3>
             <p style={{ color: "oklch(0.45 0.02 150)", fontSize: 15, margin: "0 0 24px", lineHeight: 1.5 }}>
-              Um especialista vai te chamar no WhatsApp pra confirmar seus dados e apresentar as condições do seu empréstimo.
+              Clique no botão abaixo e fale com um de nossos especialistas.
+              Ele vai consultar as opções e os valores disponíveis para você, de forma simples e sem complicação.
+
+              📄 Para o atendimento, tenha em mãos:
+              Sua conta de luz mais recente;
+              Seu RG ou CNH.
             </p>
             <a
               href={whatsappUrl}
