@@ -614,7 +614,7 @@ export default function Funil() {
               Clique no botão abaixo e fale com um de nossos especialistas.
               Ele vai consultar as opções e os valores disponíveis para você, de forma simples e sem complicação.
 
-              📄 Para o atendimento, tenha em mãos:
+              Para o atendimento, tenha em mãos:
               Sua conta de luz mais recente;
               Seu RG ou CNH.
             </p>
