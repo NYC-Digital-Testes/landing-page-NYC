@@ -21,7 +21,7 @@ export default function ComoFunciona() {
       >
         Como funciona
       </h2>
-      <Reveal style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 32 }}>
+      <Reveal className="como-funciona-grid">
         {passos.map((passo) => (
           <div key={passo.n} style={{ textAlign: "center" }}>
             <div
