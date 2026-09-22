@@ -521,7 +521,11 @@ export default function Funil() {
               </SelectContent>
             </Select>
 
-            {erro && <p style={{ color: "oklch(0.5 0.15 30)", fontSize: 14, margin: "0 0 16px" }}>{erro}</p>}
+            {erro && (
+              <p style={{ color: "oklch(0.5 0.15 30)", fontSize: 14, margin: "0 0 16px", whiteSpace: "pre-line" }}>
+                {erro}
+              </p>
+            )}
 
             <button type="submit" style={{ ...botaoPrimario, width: "100%" }}>
               Simular agora

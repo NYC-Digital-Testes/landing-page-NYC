@@ -35,10 +35,17 @@ export async function POST(req: Request) {
     // detalhe em JSON (validação de schema) é ruído técnico, então cai no genérico.
     const detalhe = e instanceof Error ? e.message.match(/^Erro Crefaz \[[^\]]+\]: (.+)$/)?.[1] : undefined;
     const legivel = detalhe && !/^[{[\d]/.test(detalhe) ? detalhe : undefined;
-    return NextResponse.json(
-      { message: legivel ?? "Não conseguimos concluir a simulação agora. Tente novamente em instantes." },
-      { status: 502 },
-    );
+
+    // A Crefaz recusa nova simulação quando já existe proposta em aberto pro
+    // CPF/cliente. A mensagem crua dela ("verifique em sua esteira...") não faz
+    // sentido pro cliente final, que não tem acesso a essa esteira — troca por
+    // uma mensagem que indica o caminho certo (falar com o consultor).
+    const proposalEmAndamento = legivel && /proposta em andamento|esteira de acompanhamento/i.test(legivel);
+    const mensagemFinal = proposalEmAndamento
+      ? "Identificamos que você já possui uma proposta em andamento.\nPara consultar o status da sua proposta, entre em contato diretamente com o consultor responsável pelo seu primeiro atendimento."
+      : (legivel ?? "Não conseguimos concluir a simulação agora. Tente novamente em instantes.");
+
+    return NextResponse.json({ message: mensagemFinal }, { status: 502 });
   }
 
   if (resultado.modo === "sincrono") {
