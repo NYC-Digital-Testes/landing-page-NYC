@@ -21,7 +21,7 @@ type Etapa =
   | "reprovado";
 
 // TODO: número real do atendimento de conversão (WhatsApp).
-const WHATSAPP_NUMERO = "5511910644163";
+const WHATSAPP_NUMERO = "5511919990212";
 
 // A pré-análise na Crefaz é assíncrona (resultado chega via webhook), então
 // fazemos polling do status. 40x a cada 2s = até ~80s de espera.
